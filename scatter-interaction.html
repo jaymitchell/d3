@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>D3 - Data Driven Documents</title>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js" charset="utf-8"></script>
+  <style type="text/css">
+
+    body {
+      padding-top: 20px;
+      padding-left: 15px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #chartArea {
+      width: 500px;
+      height: 400px;
+      background-color: #CCC;
+    }
+
+    .dot {
+      fill: teal;
+      fill-opacity: 0.7;
+      stroke: black;
+    }
+
+    .active {
+      fill: magenta;
+      fill-opacity: 0.5;
+      stroke-width: 3px;
+    }
+
+    .axis path, .axis line {
+      fill: none;
+      stroke: #000;
+      stroke-width: 1px;
+      shape-rendering: crispEdges;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="chartArea"></div>
+
+<script type="text/javascript">
+
+  var dataset = _.map(_.range(25), function (i) {
+    return {
+      x: Math.round(Math.random() * 100),
+      y: Math.round(Math.random() * 100),
+      r: Math.round(5 + Math.random() * 10)
+    };
+  });
+
+  var margin = {top: 20, right: 20, bottom: 60, left: 60};
+  var w = 500 - margin.left - margin.right;
+  var h = 400 - margin.top - margin.bottom;
+
+  var svg = d3.select('#chartArea').append('svg')
+    .attr('width', w + margin.left + margin.right)
+    .attr('height', h + margin.top + margin.bottom)
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+
+  var xScale = d3.scale.linear()
+    .domain([0, 100])
+    .range([0, w]);
+
+  var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient('bottom')
+    .ticks(5)
+    .innerTickSize(6)
+    .outerTickSize(12)
+    .tickPadding(12)
+
+  svg.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', 'translate(0, ' + (h + 0) + ')')
+    .call(xAxis)
+
+  var yScale = d3.scale.linear()
+    .domain([0, d3.max(dataset, function(d) {
+      return d.y;
+    })])
+    .range([h, 0]);
+
+  var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient('left');
+
+  svg.append('g')
+    .attr('class', 'y axis')
+    .attr('transform', 'translate(0, 0)')
+    .call(yAxis);
+
+  svg.selectAll('circle')
+    .data(dataset)
+    .enter()
+    .append('circle')
+    .attr('class', 'dot')
+    .attr('cx', function (d) {
+      return xScale(d.x);
+    })
+    .attr('cy', function (d) {
+      return yScale(d.y);
+    })
+    .attr('r', function (d) {
+      return d.r;
+    })
+    .on('mouseover', function (d) {
+      d3.select(this).classed('active', true);
+    })
+    .on('mouseout', function (d) {
+      d3.select(this).classed('active', false);
+    })
+    .on('mousedown', function (d) {
+      d3.select(this).attr('r', d.r * 2);
+    })
+    .on('mouseup', function (d) {
+      d3.select(this).attr('r', d.r);
+    });
+
+</script>
+</body>
+</html>
